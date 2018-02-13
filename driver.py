@@ -1,4 +1,5 @@
 ## solve 8 puzzle game
+from __future__ import print_function
 
 import sys
 #import resource
@@ -378,21 +379,22 @@ if __name__ == '__main__':
 	elif method == 'ast':
 		path, frontier_and_explored, count = a_star_search(board3x3)
 
+	t2 = time.time()
+	time_taken = t2 - t1
+
 	if path:
 		print("path_to_goal: " + str(path))
 		print("cost_of_path: " + str(len(path)))
 		print("nodes_expanded: " + str(count))
 		print("search_depth: " + str(len(path)))
 		print("max_search_depth: ")		
-		print("running_time: ")
+		print("running_time: " + str(time_taken))
 		print("max_ram_usage: ")
 		#print(resource.ru_maxrss)
 		print("**********************")
 	#for ex in explored:
 	#	print(ex.move)
 
-	t2 = time.time()
-	time_taken = t2 - t1
+	
 
 	print('Time Taken: ' + str(time_taken))
-
