@@ -1,5 +1,4 @@
 ## solve 8 puzzle game
-from __future__ import print_function
 
 import sys
 #import resource
@@ -163,6 +162,7 @@ def graph_search(board3x3, method):
 		frontier_and_explored = set()
 
 		count = 0
+		max_search_depth = 0
 		while True:
 
 			if len(frontier) == 0: return False
@@ -176,7 +176,7 @@ def graph_search(board3x3, method):
 			elif method == 'dfs':
 				current_node = frontier.pop()
 			#print_board(current_node.board_state)			
-			
+			max_search_depth = max(max_search_depth, current_node.cost)
 			### explored
 			hash_board = find_hash_board(current_node.board_state)
 			frontier_and_explored.add(hash_board)
@@ -188,14 +188,16 @@ def graph_search(board3x3, method):
 				### WOHOO! END OF LOOP
 				### GOAL Reached
 				move_path = current_node.get_move_list()
-				return move_path, frontier_and_explored, count
+				return move_path, max_search_depth, count
 
 			### find the new board states
 			new_boards = find_all_new_board(current_node.board_state, method)
 			new_nodes = []
 			for new_board in new_boards:
 				move = find_the_move(current_board=new_board, prev_board=current_node.board_state)
-				new_node = Node(board_state=new_board, parent_node=current_node, move=move)
+				cost = current_node.cost + 1
+				max_search_depth = max(max_search_depth, cost)
+				new_node = Node(board_state=new_board, parent_node=current_node, move=move, cost=cost)
 				new_nodes.append(new_node) 
 
 			for new_node in new_nodes:
@@ -279,13 +281,14 @@ def a_star_search(board3x3):
 		frontier_and_explored = set()
 
 		count = 0
+		max_search_depth = 0
 		while True:
 
 			if len(frontier) == 0: return False
 			
 			a_star_cost, current_node = heapq.heappop(frontier)
 			#print_board(current_node.board_state)			
-			
+			max_search_depth = max(max_search_depth, current_node.cost)
 			### explored
 			hash_board = find_hash_board(current_node.board_state)
 			frontier_and_explored.add(hash_board)
@@ -297,7 +300,7 @@ def a_star_search(board3x3):
 				### WOHOO! END OF LOOP
 				### GOAL Reached
 				move_path = current_node.get_move_list()
-				return move_path, frontier_and_explored, count
+				return move_path, max_search_depth, count
 
 			### find the new board states
 			new_boards = find_all_new_board(current_node.board_state, method)
@@ -305,6 +308,7 @@ def a_star_search(board3x3):
 			for new_board in new_boards:
 				move = find_the_move(current_board=new_board, prev_board=current_node.board_state)
 				cost = 1 + current_node.cost
+				max_search_depth = max(max_search_depth, cost)
 				new_node = Node(board_state=new_board, parent_node=current_node, move=move, cost=cost)
 				new_nodes.append(new_node) 
 
@@ -366,18 +370,18 @@ if __name__ == '__main__':
 
 
 	path = None
-	frontier_and_explored = None
+	max_search_depth = 0
 	count = 0
 
 	if method == 'bfs':
 		print('bfs')
-		path, frontier_and_explored, count = graph_search(board3x3, 'bfs')
+		path, max_search_depth, count = graph_search(board3x3, 'bfs')
 
 	elif method == 'dfs':
 		print('dfs')
-		path, frontier_and_explored, count = graph_search(board3x3, 'dfs')
+		path, max_search_depth, count = graph_search(board3x3, 'dfs')
 	elif method == 'ast':
-		path, frontier_and_explored, count = a_star_search(board3x3)
+		path, max_search_depth, count = a_star_search(board3x3)
 
 	t2 = time.time()
 	time_taken = t2 - t1
@@ -387,7 +391,7 @@ if __name__ == '__main__':
 		print("cost_of_path: " + str(len(path)))
 		print("nodes_expanded: " + str(count))
 		print("search_depth: " + str(len(path)))
-		print("max_search_depth: ")		
+		print("max_search_depth: " + str(max_search_depth))		
 		print("running_time: " + str(time_taken))
 		print("max_ram_usage: ")
 		#print(resource.ru_maxrss)
@@ -398,3 +402,4 @@ if __name__ == '__main__':
 	
 
 	print('Time Taken: ' + str(time_taken))
+
