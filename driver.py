@@ -1,7 +1,9 @@
 ## solve 8 puzzle game
+from __future__ import print_function
+## solve 8 puzzle game
 
 import sys
-#import resource
+import resource
 import time
 
 
@@ -196,7 +198,6 @@ def graph_search(board3x3, method):
 			for new_board in new_boards:
 				move = find_the_move(current_board=new_board, prev_board=current_node.board_state)
 				cost = current_node.cost + 1
-				max_search_depth = max(max_search_depth, cost)
 				new_node = Node(board_state=new_board, parent_node=current_node, move=move, cost=cost)
 				new_nodes.append(new_node) 
 
@@ -208,9 +209,12 @@ def graph_search(board3x3, method):
 					### set for comparison only
 					hash_board = find_hash_board(new_node.board_state)
 					frontier_and_explored.add(hash_board)
+
+					### find max search depth
+					max_search_depth = max(max_search_depth, cost)
 		
 			count = count + 1
-			print(count)
+			#print(count)
 
 		
 	else:
@@ -308,7 +312,6 @@ def a_star_search(board3x3):
 			for new_board in new_boards:
 				move = find_the_move(current_board=new_board, prev_board=current_node.board_state)
 				cost = 1 + current_node.cost
-				max_search_depth = max(max_search_depth, cost)
 				new_node = Node(board_state=new_board, parent_node=current_node, move=move, cost=cost)
 				new_nodes.append(new_node) 
 
@@ -323,9 +326,12 @@ def a_star_search(board3x3):
 					### set for comparison only
 					hash_board = find_hash_board(new_node.board_state)
 					frontier_and_explored.add(hash_board)
+
+					### find the max search depth
+					max_search_depth = max(max_search_depth, new_node.cost)
 		
 			count = count + 1
-			print(count)
+			#print(count)
 
 		
 	else:
@@ -338,6 +344,8 @@ def a_star_search(board3x3):
 ###################################
 
 
+def get_memory_usage():
+	return resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
 
 
 
@@ -347,6 +355,7 @@ if __name__ == '__main__':
 #	f = open("output.txt", "wr")
 	t1 = time.time()
 
+	start_memory = get_memory_usage()
 
 	method = sys.argv[1]
 	board = sys.argv[2]
@@ -386,20 +395,36 @@ if __name__ == '__main__':
 	t2 = time.time()
 	time_taken = t2 - t1
 
+	end_memory = get_memory_usage()
+
+	max_ram_usage = (end_memory - start_memory) / 1000.0
+
 	if path:
+
+		with open('output.txt', 'w') as f:
+			f.write("path_to_goal: " + str(path))
+			f.write("\n")
+			f.write("cost_of_path: " + str(len(path)))
+			f.write("\n")
+			f.write("nodes_expanded: " + str(count))
+			f.write("\n")
+			f.write("search_depth: " + str(len(path)))
+			f.write("\n")
+			f.write("max_search_depth: " + str(max_search_depth))		
+			f.write("\n")
+			f.write("running_time: %.8f" % time_taken)
+			f.write("\n")
+			f.write("max_ram_usage: %.8f" % max_ram_usage)
+
+
+
 		print("path_to_goal: " + str(path))
 		print("cost_of_path: " + str(len(path)))
 		print("nodes_expanded: " + str(count))
 		print("search_depth: " + str(len(path)))
 		print("max_search_depth: " + str(max_search_depth))		
-		print("running_time: " + str(time_taken))
-		print("max_ram_usage: ")
-		#print(resource.ru_maxrss)
+		print("running_time: %.8f" % time_taken)
+		print("max_ram_usage: %.8f" % max_ram_usage)
 		print("**********************")
-	#for ex in explored:
-	#	print(ex.move)
-
 	
-
-	print('Time Taken: ' + str(time_taken))
 
